@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="loginUMSVMS.css">
+    <title>Login | UMSVMS</title>
+</head>
+
+<body>
+    <section>
+        <div class="um">
+            <img src="img/background2.jpg" alt="um matina">
+        </div>
+        <div class="header">
+            <h1>UM Student Vehicle Monitoring System</h1>
+        </div>
+        
+        <div class="login">  
+            <div class="box">
+                <form action="">
+                    <img src="img/University_of_Mindanao_Logo.bmp" alt="um logo"> 
+                    <br><br>                   
+                    <h2>MAIN</h2>
+                    <br><br>     
+                    <div class="inputbox">
+                        <input type="text" name="studentid" id="studentid" placeholder="Enter ID Number..." required>
+                    </div>
+                    <br><br>
+                    <div class="inputbox">
+                        <input type="password" name="studentpass" id="studentpass" placeholder="Enter Password..." required>
+                    </div>
+                    <br><br>
+                    <div class="remember">
+                        <label><input type="checkbox" name="remember" id="remember"> Remember me</label>
+                    </div>
+                    <br>
+                    <div class="submitbox">
+                        <input type="submit" name="signin" id="signin" value="Sign in">
+                    </div>
+                    <br>
+                    <div class="signup">
+                        <p>Don't have an account? <a href="#">Sign up</a></p>
+                    </div>
+                </form>
+            </div>    
+        </div>
+    </section>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAMYwrxpJqkVprEhcnCSgU7H3l4yPNKFIc",
+          authDomain: "monitoringthesis.firebaseapp.com",
+          databaseURL: "https://monitoringthesis-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "monitoringthesis",
+          storageBucket: "monitoringthesis.appspot.com",
+          messagingSenderId: "790682496758",
+          appId: "1:790682496758:web:2dad0d5c6c9e8000dc86d7"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.getElementById("signin").addEventListener('click', async function(e) {
+            e.preventDefault();
+
+            const studentid = document.getElementById("studentid").value;
+            const studentpass = document.getElementById("studentpass").value;
+
+            try {
+                const snapshot = await get(ref(db, 'user/' + studentid));
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    if (userData.studentpass === studentpass) {
+                        const response = await fetch('/loginSession', { method: 'POST', body: studentid }); 
+                            if(response.ok) {   
+                                        // Record the login time
+                                const currentTime = new Date().getHours(); // get the current hour
+                                const timeRef = ref(db, 'login/' + currentTime); // create a reference to the specific hour
+                                const timeSnapshot = await get(timeRef);
+                                let currentCount = timeSnapshot.exists() ? timeSnapshot.val() : 0;
+                                await set(timeRef, currentCount + 1); // increment the count      
+                                
+                                window.location.href = "/dashboard";                               
+                            } else {
+                                alert("Error setting session.");
+                            }
+                    } else {
+                        alert("Incorrect password!");
+                    }
+                } else {
+                    alert("User does not exist!");
+                }
+            } catch (error) {
+                console.error("Error checking credentials: ", error);
+                alert("Error checking credentials!");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 6969;
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./monitoringthesis-firebase-adminsdk-p0kb9-bf974f7aab.json');
+const { error } = require('console');
 
 const checkStaleLocationData = (req, res, next) => {
     if (req.session.locationData && Date.now() - req.session.locationData.timestamp > 600000) {
@@ -199,8 +200,8 @@ app.post('/rfidTap', (req, res) => {
     req.on('end', () => {
         console.log("Recieved data:", data);
         const rfid = data;
-        
         const ref = db.ref("user");
+        const userRef = db.ref("user/" + studentid);
 
         ref.once('value').then(snapshot => {
             let found = false;
@@ -213,6 +214,14 @@ app.post('/rfidTap', (req, res) => {
             });
 
             if(found) {
+                userRef.child('rideCount').transaction((currentValue) => {
+                    return(currentValue || 0) + 1;
+                }).then(() => {
+                    console.log('Ride count incremented for user:', studentid);
+                }).catch(error => {
+                    console.error('Failed to increment ride count for user:', studentid, error);
+                });
+
                 passengerCount += 1;
                 io.emit('rfidTapped', {}); // Send a message to the client about the RFID tap
                 res.json({ status: 'success' });

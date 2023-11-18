@@ -66,10 +66,10 @@ section{
     justify-content: center;
     align-items: center; 
     background-color: #F9F9F9;
-    width: 350px;box-shadow: 0 0 10px;
+    width: 350px;
+    box-shadow: 0 0 10px;
     height: 500px;
-    border-radius: 20px;
-    
+    border-radius: 20px; 
     padding: 30px;
 }
 

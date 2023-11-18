@@ -4,8 +4,9 @@
     --maroon:#9D2503;
     --black:#03001C;
     --yellow:#FFE569;
-    --white:#F9F9F9;
-    --grey:#f5f5f5;
+    --beige:#FFFaed;
+    --white:#FFF;
+    --grey:#F1F0E8;
 }
 
 *{
@@ -21,7 +22,7 @@
 body{
     display: grid;
     height: 100vh;
-    background-color: var(--grey);
+    background-color: var(--beige);
     grid-template-rows: 60px 570px 1fr 60px;
     gap: 10px;
     overflow-x: hidden;
@@ -154,71 +155,9 @@ a:hover:after{
     grid-row: 3 / 4;
     grid-template-rows: repeat(6 1fr);
     grid-template-columns: repeat(3 1fr);
-    grid-gap: 30px;
+    grid-gap: 40px 20px;
     padding: 20px;
     margin-bottom: 50px;
-}
-
-.destination{
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--white);
-    box-shadow: 0 0 8px var(--black);
-    font-size: 25px;
-    border-radius: 20px;
-    width: 350px;
-    height: 430px;
-    grid-row: 1 / 3;
-    grid-column: 1 / 2;
-}
-
-.destination h2{
-    font-size: 30px;
-}
-
-.destination select{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 150px;
-    height: 30px;
-    font-size: 18px;
-    border-radius: 10px;
-    background-color: var(--maroon);
-    color: var(--white);
-    letter-spacing: 1px;
-}
-
-.destination .start{
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.destination .finish{
-    display: flex;
-    flex-flow: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.destination input{
-    border: 2px solid black;
-    border-radius: 20px;
-    padding: 10px 20px;
-    width: 120px;
-    height: 40px;
-    font-size: 15px;
-    font-weight: 1000;
-    letter-spacing: 1px;
-}
-
-.destination input[type="submit"]:hover{
-    background: var(--maroon);
-    color: var(--white);
 }
 
 .information{
@@ -230,19 +169,33 @@ a:hover:after{
     height: 100px;
 }
 
+.card1{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    background-color: var(--white);
+    box-shadow: 0px 0px 10px var(--black);
+    border-radius: 10px;
+    grid-row: 4 / 5;
+    grid-column: 2 / 3;
+    padding: 10px;
+    width: 350px;
+    height: 200px;
+
+}
+
 .card2{
     display: flex;
     flex-flow: column;
     align-items: center;
     background-color: var(--white);
-    box-shadow: 0 0 8px var(--black);
-    border-radius: 15px;
+    box-shadow: 0px 0px 10px var(--black);
+    border-radius: 10px;
     grid-row: 4 / 5;
-    grid-column: 2 / 3;
-    padding: 20px;
+    grid-column: 1 / 2;
+    padding: 10px;
     width: 350px;
     height: 200px;
-
 }
 
 .card3{
@@ -250,11 +203,25 @@ a:hover:after{
     flex-flow: column;
     align-items: center;
     background-color: var(--white);
-    box-shadow: 0 0 8px var(--black);
-    border-radius: 15px;
+    box-shadow: 0px 0px 10px var(--black);
+    border-radius: 10px;
+    grid-row: 4 / 5;
+    grid-column: 3 / 4;
+    padding: 10px;
+    width: 350px;
+    height: 200px;    
+}
+
+.card4{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    background-color: var(--white);
+    box-shadow: 0px 0px 10px var(--black);
+    border-radius: 10px;
     grid-row: 5 / 6;
     grid-column: 1 / 4;
-    padding: 20px;
+    padding: 10px;
     width: 1150px;
     height: 700px;
 }
@@ -264,46 +231,18 @@ a:hover:after{
     height: 100%;
 }
 
-.card4{
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    background-color: var(--white);
-    box-shadow: 0 0 8px var(--black);
-    border-radius: 15px;
-    grid-row: 4 / 5;
-    grid-column: 1 / 2;
-    padding: 20px;
-    width: 350px;
-    height: 200px;
-}
-
-.card5{
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    background-color: var(--white);
-    box-shadow: 0 0 8px var(--black);
-    border-radius: 15px;
-    grid-row: 4 / 5;
-    grid-column: 3 / 4;
-    padding: 20px;
-    width: 350px;
-    height: 200px;    
-}
-
 .umgmap{
     display: flex;
     flex-direction: column;
     grid-row: 1 / 3;
-    grid-column: 2 / 4;
+    grid-column: 1 / 4;
     
 }
 
 .umgmap .umgmapstyle{
     display: flex;
     width: 700px;
-    height: 400px;
+    height: 500px;
     z-index: 0;
 }
 
@@ -380,17 +319,7 @@ a:hover:after{
     .main{
         padding: 0px;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        grid-template-rows: repeat(7, 1fr);       
-    }
-
-
-    .destination{
-        width: 280px;
-        grid-column: 1 / 2;
-        grid-row: 1 / 2;
-        justify-self: center;
-        align-self: center;
-        
+        grid-template-rows: repeat(7 1fr);       
     }
 
     .umgmap{
@@ -407,20 +336,38 @@ a:hover:after{
         align-self: end;
     }
     
-    .card2{
+    .card1{
         grid-column: 1 / 2;
         grid-row: 4 / 5;
-        width: 250px;
-        height: 270px;
+        width: 270px;
+        height: 250px;
+        justify-self: center;
+        align-self: center;
+    }
+
+    .card2{
+        grid-column: 1 / 2;
+        grid-row: 5 / 6;
+        width: 270px;
+        height: 250px;
         justify-self: center;
         align-self: center;
     }
     
     .card3{
+        grid-column: 1 / 2;
+        grid-row: 6 / 7;
+        width: 270px;
+        height: 250px; 
+        justify-self: center;
+        align-self: center;  
+    }
+
+    .card4{
         grid-column: 1 / 2;       
         grid-row: 7 / 8;
-        width: 250px;
-        height: 400px;
+        width: 270px;
+        height: 450px;
         justify-self: center;
         align-self: center;
         box-sizing: border-box; 
@@ -430,24 +377,6 @@ a:hover:after{
         width: 100%;
         height: 100%;
         box-sizing: border-box; 
-    }
-
-    .card4{
-        grid-column: 1 / 2;
-        grid-row: 5 / 6;
-        width: 250px;
-        height: 270px;
-        justify-self: center;
-        align-self: center;
-    }
-    
-    .card5{
-        grid-column: 1 / 2;
-        grid-row: 6 / 7;
-        width: 250px;
-        height: 270px; 
-        justify-self: center;
-        align-self: center;  
     }
 
     .umgmap .umgmapstyle{

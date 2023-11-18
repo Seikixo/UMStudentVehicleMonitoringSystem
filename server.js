@@ -13,14 +13,6 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./monitoringthesis-firebase-adminsdk-p0kb9-bf974f7aab.json');
 const { error } = require('console');
 
-const checkStaleLocationData = (req, res, next) => {
-    if (req.session.locationData && Date.now() - req.session.locationData.timestamp > 600000) {
-        delete req.session.locationData;
-    }
-    next();
-};
-
-let passengerCount = 0;
 let locationData = null;
 let lastGpsData = null;
 let totalDistance = 0;
@@ -36,22 +28,23 @@ const db = admin.database();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
-    secret: 'z9f3fdjgghdsn',  // Change this to a long random string!
+    secret: 'z9f3fdjgghdsn',  
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }  // Set to true if you're using HTTPS
+    cookie: { secure: false }  
 }));
 
 app.use(express.json());
 app.use(express.static('layout'));
+app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 
 function ensureAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
-        next();  // User session exists, proceed
+        next();  
     } else {
-        res.redirect('/');  // No user session, redirect to login
+        res.redirect('/');  
     }
 }
 
@@ -71,18 +64,19 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return distance; 
 }
 
+const passengerCountRef = db.ref("passengerCount");
 io.on('connection', (socket) => {
     console.log('User connected');
     socket.emit('totalDistance', totalDistance);
 
-    socket.on('rfidTapped', (data) => {
-        // Broadcast the RFID tap event to all connected devices
-        io.emit('updateData', data);
-      });
+    passengerCountRef.once('value', (snapshot) => {
+        const currentCount = snapshot.val() || 0;
+        socket.emit('rfidTapped', { passengerCount: currentCount });
+    });
     
-      socket.on('disconnect', () => {
-        console.log('user disconnected');
-      });
+    socket.on('disconnect', () => {
+    console.log('User disconnected');
+    });
 });
 
 
@@ -107,31 +101,6 @@ app.post('/logoutSession', (req, res) => {
     });
 });
 
-app.use(checkStaleLocationData);
-
-app.post('/submitLoc', (req, res) => {
-    const locationData = {
-        from: req.body.from,
-        to: req.body.to,
-        fromLat: req.body.fromLat,
-        fromLon: req.body.fromLon,
-        toLat: req.body.toLat,
-        toLon: req.body.toLon
-    };
-
-    const currentTime = Date.now();
-    req.session.locationData = {
-        data: locationData,
-        timestamp: currentTime
-    };
-
-    if (!locationData.from || !locationData.to || !locationData.fromLat || !locationData.fromLon || !locationData.toLat || !locationData.toLon) {
-        return res.status(400).json({ status: 'error', message: 'Missing required fields' });
-    }
-
-    res.json({ status: 'success' });
-});
-
 app.post('/gpsData', (req, res) => {
     let data = '';
     req.on('data', chunk =>{
@@ -142,27 +111,6 @@ app.post('/gpsData', (req, res) => {
         console.log('Received data:', data);
         const [lat, lon,] = data.split(',').map(d => parseFloat(d));
 
-        // Check if there is an active session and "to" location data
-        if (req.session.locationData && req.session.locationData.data.toLat && req.session.locationData.data.toLon) {
-            const destinationLat = parseFloat(req.session.locationData.data.toLat);
-            const destinationLon = parseFloat(req.session.locationData.data.toLon);
-
-            const currentLat = lat;
-            const currentLon = lon;
-
-            // Calculate the distance between the current location and the destination
-            const distanceToDestination = calculateDistance(currentLat, currentLon, destinationLat, destinationLon);
-
-            // Define a threshold for considering the destination reached
-            const destinationThreshold = 0.1; // Adjust as needed
-
-            if (distanceToDestination <= destinationThreshold) {
-                // Destination reached, decrement passengerCount
-                passengerCount -= 1;
-                delete req.session.locationData;
-            }
-        }
-
         if(lastGpsData) {
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
             totalDistance += distance;
@@ -171,7 +119,7 @@ app.post('/gpsData', (req, res) => {
 
         io.emit('gpsData', {lat, lon,});
         io.emit('totalDistance', totalDistance);
-        res.json({ status: 'success' });
+        res.json({ status: 'GPS success' });
     });
 });
 
@@ -185,8 +133,8 @@ app.post('/coData', (req, res) => {
         console.log('Recieved data:', data);
         const coConcentration = parseFloat(data);
 
-        io.emit('coData', {coConcentration});
-        res.json({ status: 'success' });
+        io.emit('coData', coConcentration);
+        res.json({ status: 'CO success' });
     });
 });
 
@@ -197,52 +145,60 @@ app.post('/rfidTap', (req, res) => {
         data += chunk;
     });
 
+    const dbRef = db.ref("user");
+    const passengerCountRef = db.ref("passengerCount");
+
     req.on('end', () => {
-        console.log("Recieved data:", data);
-        const rfid = data;
-        const ref = db.ref("user");
-        const userRef = db.ref("user/" + studentid);
+        console.log("Received data:", data);
+        const receivedRfid = data;
 
-        ref.once('value').then(snapshot => {
+        dbRef.once('value', snapshot => {
             let found = false;
-
+    
             snapshot.forEach(childSnapshot => {
-                if(childSnapshot.val().rfidHex === rfid) {
+                const user = childSnapshot.val();
+
+                if(user.rfidHex === receivedRfid) {
                     found = true;
-                    return true; 
+                    const userId = childSnapshot.key;
+                    const userRef = dbRef.child(userId);
+    
+                    // Retrieve the current passenger count
+                    passengerCountRef.once('value', countSnapshot => {
+                        let passengerCount = countSnapshot.val() || 0;
+    
+                        if (user.isRiding) {
+                            // User is stepping out of the vehicle
+                            passengerCount = Math.max(0, passengerCount - 1);
+                            userRef.update({ isRiding: false });
+                        } else {
+                            // User is riding the vehicle
+                            userRef.child('rideCount').transaction((currentRideValue) => {
+                                return (currentRideValue || 0) + 1;
+                            });                            
+                            passengerCount += 1;
+                            userRef.update({ isRiding: true });
+                        }
+    
+                        // Update the passenger count in Firebase
+                        passengerCountRef.set(passengerCount);
+    
+                        // Emit the updated passenger count
+                        io.emit('rfidTapped', { passengerCount: passengerCount, isRiding: !user.isRiding }); 
+                        res.json({ status: 'RFID success', passengerCount: passengerCount, isRiding: !user.isRiding });
+                    });
+    
+                    return true; // Exit the forEach loop
                 }
-            });
-
-            if(found) {
-                userRef.child('rideCount').transaction((currentValue) => {
-                    return(currentValue || 0) + 1;
-                }).then(() => {
-                    console.log('Ride count incremented for user:', studentid);
-                }).catch(error => {
-                    console.error('Failed to increment ride count for user:', studentid, error);
-                });
-
-                passengerCount += 1;
-                io.emit('rfidTapped', {}); // Send a message to the client about the RFID tap
-                res.json({ status: 'success' });
-            } else {
+            });    
+            if (!found) {
                 res.status(400).json({ status: 'error', message: 'RFID not found' });
             }
         }).catch(error => {
             res.status(500).json({ status: 'error', message: 'An error occurred while checking the RFID' });
-        });
+        });    
     });
 });
-
-app.post('/cancelSession', (req, res) => {  
-        if(req.session && req.session.locationData) {
-            delete req.session.locationData;
-            res.send({ status: 'Cancel success' });
-        } else {
-            res.status(500).send({ status: 'error', message: 'Cancel failed' });
-        }
-});
-
 
 app.get('/', (req, res) => {
     res.sendFile('./views/login.html' , {root: __dirname});
@@ -258,7 +214,7 @@ app.get('/dashboard', ensureAuthenticated, async (req, res) => {
             const rfidData = userData.rfidHex;
 
             if(userData){
-                res.render('dashboard', { user: userData, passengers: passengerCount, coConcentration: coConcentration });
+                res.render('dashboard', { user: userData });
             }
             else{
                 res.redirect('/')

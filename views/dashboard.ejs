@@ -21,34 +21,9 @@
             <li><a href="#">More info</a></li>
             <li><a href="#" id="logout">Logout</a></li>
             <li><h2>Welcome <%= user.fullName %> </h2></li>
-            <script>
-                document.getElementById("logout").addEventListener('click', async function() {
-                    try {
-                        const response = await fetch('/logoutSession', { method: 'POST' });
-                        const data = await response.json();
-                        if (data.status === 'logged out') {
-                            window.location.href = "/";
-                        } else {
-                            alert("Failed to log out!");
-                        }
-                    } catch (error) {
-                        console.error("Error logging out: ", error);
-                        alert("Error logging out!");
-                    }
-                });
-            </script>
         </ul>
         
         <img src="img/menu_FILL0_wght400_GRAD0_opsz48.png" alt="menu-btn" class="menu-btn">
-        <script>
-            //Menu
-            const menuBtn = document.querySelector('.menu-btn')
-            const navLinks = document.querySelector('.links')
-
-            menuBtn.addEventListener('click',()=>{
-                navLinks.classList.toggle('mobile-menu')
-            })
-        </script>
     </header>
     <!--header section ends-->
 
@@ -77,221 +52,23 @@
                 <div class="btn"> </div>
                 <div class="btn"> </div>
             </div>
-        </div>
-        
-        <script>
-            //Image Slides
-            var slides = document.querySelectorAll('.slide');
-            var buttons = document.querySelectorAll('.btn');
-            let currentSlide = 1;
-        
-            var manualNav = function(manual){
-                slides.forEach((slide) => {
-                    slide.classList.remove('active');
-        
-                    buttons.forEach((btn) => {
-                        btn.classList.remove('active');
-                    });
-                });
-        
-                slides[manual].classList.add('active');
-                buttons[manual].classList.add('active');
-            }
-        
-            buttons.forEach((btn, i) => {
-                btn.addEventListener("click", () => {
-                manualNav(i);
-                currentSlide = i; 
-                });
-            });
-        
-            var autoNav = function(activeClass){
-                let active = document.getElementsByClassName('active');
-                let i = 1;
-        
-                var repeater = () => {
-                    setTimeout(function(){
-        
-                        [...active].forEach((activeSlide) => {
-                            activeSlide.classList.remove('active');
-                        });
-        
-                        slides[i].classList.add('active');
-                        buttons[i].classList.add('active'); 
-                        i++
-                        
-                        if(slides.length == i){
-                            i = 0;
-                        }
-        
-                        if(i >= slides.length){
-                            return;
-                        }
-        
-                        repeater();
-                    }, 10000);
-                }
-                repeater();
-            }
-            autoNav();
-            </script> 
+        </div> 
     <!--slides section ends-->
 
     <!--main section starts-->
     <main class="main">
-        <div class="destination">
-            <div class="banner1">
-                <h2>Select Destination</h2>
-            </div> 
-                <br>
-            <form id="locationForm" action="/submitLoc" method="post" >
-                <div class="start">
-                <label>From</label>
-                    <select name="from" id="from">
-                        <option data-lat="7.0651219167851815" data-lon="125.59819727403885">Matina Gate</option>
-                        <option data-lat="7.065567930287546" data-lon="125.5971292483971">BE Building</option>
-                        <option data-lat="7.065837951990798" data-lon="125.59612660868727">Canteen</option>
-                        <option data-lat="7.065135226005488" data-lon="125.59453605876116">FEA Building</option>                   
-                        <option data-lat="7.067267065604182" data-lon="125.59638485105306">GET Building</option>
-                        <option data-lat="7.0682333091136345" data-lon="125.59571698097541">DPT Building</option>
-                        <option data-lat="7.067572212044512" data-lon="125.59213988869477">Maa Gate</option>
-                    </select>
-                </div>
-                <br>
-                <div class="finish">
-                    <label>To</label>
-                    <select name="to" id="to">
-                        <option data-lat="7.0651219167851815" data-lon="125.59819727403885">Matina Gate</option>
-                        <option data-lat="7.065567930287546" data-lon="125.5971292483971">BE Building</option>
-                        <option data-lat="7.065837951990798" data-lon="125.59612660868727">Canteen</option>
-                        <option data-lat="7.065135226005488" data-lon="125.59453605876116">FEA Building</option>                   
-                        <option data-lat="7.067267065604182" data-lon="125.59638485105306">GET Building</option>
-                        <option data-lat="7.0682333091136345" data-lon="125.59571698097541">DPT Building</option>
-                        <option data-lat="7.067572212044512" data-lon="125.59213988869477">Maa Gate</option>
-                    </select> 
-                </div>
-                <br>
-                <input type="submit" class="submit" id="submit" value="SUBMIT">
-                <input type="submit" class="cancel" id="cancel" value="CANCEL">
-            </form> 
-
-            <script src="/socket.io/socket.io.js"></script>
-            <script>
-                var socketRFID = io.connect();  
-                
-                socketRFID.on('rfidTapped', function(data) {
-                    alert('Welcome Student');
-                    enableFormAndClearSession();
-                });
-
-                function disableForm() {
-                    document.getElementById('locationForm').querySelectorAll('input.submit, select').forEach(input => input.disabled = true);
-                    localStorage.setItem('formDisabled', 'true');
-                }
-            
-                function enableFormAndClearSession() {
-                    document.getElementById('locationForm').querySelectorAll('input, select').forEach(input => input.disabled = false);
-                    localStorage.removeItem('formDisabled');
-                } 
-            
-                window.onload = function() {
-                    // Check if the form should be disabled based on local storage value
-                    if (localStorage.getItem('formDisabled') === 'true') {
-                        disableForm();
-                        
-                        // Automatically enable the form after 10 minutes (600000 milliseconds) if it's disabled on page load
-                        setTimeout(() => {
-                            enableFormAndClearSession();
-                        }, 600000);
-                    }
-                }
-            
-                document.getElementById('locationForm').addEventListener('submit', async (event) => {
-                    event.preventDefault();
-            
-                    const from = document.getElementById('from');
-                    const to = document.getElementById('to');
-            
-                    const formData = {
-                        from: from.value,
-                        to: to.value,
-                        fromLat: from.options[from.selectedIndex].getAttribute('data-lat'),
-                        fromLon: from.options[from.selectedIndex].getAttribute('data-lon'),
-                        toLat: to.options[to.selectedIndex].getAttribute('data-lat'),
-                        toLon: to.options[to.selectedIndex].getAttribute('data-lon')
-                    };
-            
-                    // Submit data to server
-                    const response = await fetch('/submitLoc', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    });
-            
-                    if(response.ok) {
-                        disableForm();
-                        alert('Please tap the RFID to the scanner.');
-                        setTimeout(() => {
-                            enableFormAndClearSession();
-                        }, 600000);
-                    } else {
-                        alert('Error submitting data.');
-                    }
-                });
-
-                document.getElementById('cancel').addEventListener('click', async (event) =>{
-                    event.preventDefault();
-                    try {
-                        const response = await fetch('/cancelSession', {
-                            method: 'POST'
-                        });
-                        const result = await response.json();
-                        if (result.status === 'Cancel success'){
-                            alert('You can now have a new entry');
-                            enableFormAndClearSession();
-                        }
-                        else {
-                            alert('Cancel failed');
-                        }
-                    }
-                    catch (err) {
-                        alert('Error during cancel.');
-                    }
-                });
-
-                document.getElementById('logout').addEventListener('click', async () => {
-                    try {
-                        const response = await fetch('/logoutSession', {
-                            method: 'POST'
-                        });
-                        const result = await response.json();
-                        if (result.status === 'logged out') {
-                            enableFormAndClearSession(); // enable the form and clear localStorage upon successful logout
-                        } else {
-                            alert('Failed to logout.');
-                        }
-                    } catch (err) {
-                        alert('Error during logout.');
-                    }
-                });
-            </script>
-            
-        </div>
-
         <div class="information"> 
             <h1>More Information</h1>
         </div>
 
-        <div class="card2">
-            <h2>Vehicle Passenger </h2>
+        <div class="card1">
+            <h1>Vehicle Passenger </h1>
             <br>
-            <h2><%= passengers %></h2>
+            <h1><span id="passenger-count"></span></h1>
         </div>
 
-        <div class="card3">
-            <h2>Peak hours</h2>
+        <div class="card4">
+            <h1>Peak hours</h1>
             <canvas id="myBarChart"></canvas>
             <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
             <script type="module">
@@ -356,87 +133,26 @@
                         }
                     });
                 }
-                // Fetch data and create chart on page load
                 fetchLoginData();
         
             </script>
         </div>
         
-        <div class="card4">
-            <h2>Distance Traveled</h2> 
+        <div class="card2">
+            <h1>Distance Traveled</h1> 
             <br>
-            <h2><span id="distance-display">0.00</span></h2>
-            
-            <script src="/socket.io/socket.io.js"></script>   
-            <script>
-                const socketDistance = io();
-
-                socketDistance.on('totalDistance', (distance) => {
-                    document.getElementById('distance-display').innerText = `${distance.toFixed(2)} km`;  
-                });
-            </script>
+            <h1><span id="distance-display"></span></h1>
         </div>
 
-        <div class="card5">
-            <h2>Air Quality</h2>
+        <div class="card3">
+            <h1>Air Quality</h1>
             <br>
-            <h2><span id="coConcentration"><%= coConcentration ? coConcentration : 'No data available' %></span> ppm</h2>
-                
-            <script src="/socket.io/socket.io.js"></script> 
-            <script>
-                const socketCO = io();
-
-                socketCO.on('coData', (data) => {
-                    document.querySelector("#coConcentration").textContent = data.coConcentration;
-                });
-            </script>
+            <h1><span id="co-display"></span> ppm</h1>
         </div>
  
         <div class="umgmap">
-            <div class="umgmapstyle" id="map">
-                <script src="/socket.io/socket.io.js"></script>
-                <script>   
-                   const map = L.map('map').setView([0, 0], 17);
-       
-                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '© OpenStreetMap'
-                    }).addTo(map); 
-
-                    const customIcon = L.icon({
-                        iconUrl: 'img/bus-stop.png',
-                        iconSize: [85, 90],
-                        iconAnchor: [42.5, 90],                       
-                    });
-
-                    let marker;
-                    let circle;
-
-                    const socketMap = io();
-                
-                    socketMap.on('gpsData', (data) => {
-
-                        if (marker){
-                            map.removeLayer(marker);
-                        }
-
-                        if (circle){
-                            map.removeLayer(circle);
-                        }
-
-                        const latlng = [data.lat, data.lon];
-                        marker = L.marker(latlng, {icon: customIcon}).addTo(map);
-                        circle = L.circle(latlng, {
-                            color: 'red',      
-                            fillColor: '#FFD700', 
-                            fillOpacity: 0.5,  
-                            radius: 30        
-                        }).addTo(map);
-                        //map.panTo([data.lat, data.lon]);
-                        map.setView(latlng, 17);
-                    });       
-                </script>
-            </div>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <div class="umgmapstyle" id="map"></div>
         </div>     
     </main>
     <!--main section ends-->
@@ -454,5 +170,8 @@
         </div>
     </footer>
     <!--footer section ends-->
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="<%= '/js/frontend.js' %>"></script>     
 </body>
 </html>

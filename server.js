@@ -65,6 +65,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 const passengerCountRef = db.ref("passengerCount");
+
 io.on('connection', (socket) => {
     console.log('User connected');
     socket.emit('totalDistance', totalDistance);
@@ -73,7 +74,7 @@ io.on('connection', (socket) => {
         const currentCount = snapshot.val() || 0;
         socket.emit('rfidTapped', { passengerCount: currentCount });
     });
-    
+
     socket.on('disconnect', () => {
     console.log('User disconnected');
     });
@@ -173,10 +174,10 @@ app.post('/rfidTap', (req, res) => {
                             userRef.update({ isRiding: false });
                         } else {
                             // User is riding the vehicle
-                            userRef.child('rideCount').transaction((currentRideValue) => {
-                                return (currentRideValue || 0) + 1;
-                            });                            
-                            passengerCount += 1;
+                            userRef.child('rideCount').transaction((rideCount) => {
+                                return (rideCount || 0) + 1;
+                            });  
+                            passengerCount += 1;                           
                             userRef.update({ isRiding: true });
                         }
     
@@ -184,11 +185,11 @@ app.post('/rfidTap', (req, res) => {
                         passengerCountRef.set(passengerCount);
     
                         // Emit the updated passenger count
-                        io.emit('rfidTapped', { passengerCount: passengerCount, isRiding: !user.isRiding }); 
-                        res.json({ status: 'RFID success', passengerCount: passengerCount, isRiding: !user.isRiding });
+                        io.emit('rfidTapped', { passengerCount: passengerCount, isRiding: user.isRiding }); 
+                        res.json({ status: 'RFID success', passengerCount: passengerCount, isRiding: user.isRiding });
                     });
     
-                    return true; // Exit the forEach loop
+                    return true; 
                 }
             });    
             if (!found) {
@@ -201,7 +202,7 @@ app.post('/rfidTap', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile('./views/login.html' , {root: __dirname});
+    res.render('login');
 });
 
 app.get('/dashboard', ensureAuthenticated, async (req, res) => {
@@ -211,10 +212,10 @@ app.get('/dashboard', ensureAuthenticated, async (req, res) => {
 
         ref.once("value", (snapshot) => {
             const userData = snapshot.val();
-            const rfidData = userData.rfidHex;
+            const rideCount = userData.rideCount;
 
             if(userData){
-                res.render('dashboard', { user: userData });
+                res.render('dashboard', { user: userData, rideCount: rideCount });
             }
             else{
                 res.redirect('/')

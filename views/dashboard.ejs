@@ -14,9 +14,10 @@
 <body>
     <!--header section starts-->
     <header class="navbar">
-        <h1 class="logo">OBSENTRY</h1>
+        <img src="img/OBSENTRY LOGO-2.png" alt="system-logo" class="system-logo">
+        <h1 class="system">OBSENTRY</h1>
         <ul class="links">    
-            <li><a href="#">About</a></li>
+            <li><a href="#" class="about">About</a></li>
             <li><a href="#">Destination</a></li>
             <li><a href="#">More info</a></li>
             <li><a href="#" id="logout">Logout</a></li>
@@ -27,32 +28,49 @@
     </header>
     <!--header section ends-->
 
+    <!--popup section starts-->
+    <div class="about-modal">
+        <div class="about-content">
+            <span class="close-about">&times;</span>
+            <h1>About</h1>
+            <p>
+                Vehicle Innovation is very frequent nowadays, they want
+                to enhance passenger or driver experience in this fast
+                pace era, with that said OBSENTRY gives a reliable 
+                innovation in terms of vehicle monitoring. This is a one step                               
+                forward in innovating the student vehicle in University of 
+                Mindanao.
+            </p>
+        </div>
+    </div>
+    <!--popup section ends-->
+
     <!--slides section starts-->
-        <div class="img-slides">
-            <div class="slide active">
-                <img src="img/background3.jpg" alt="">
-                <div class="info">
-                    <h2>BE Building</h2>
-                </div>
+    <div class="img-slides">
+        <div class="slide active">
+            <img src="img/background3.jpg" alt="">
+            <div class="info">
+                <h2>BE Building</h2>
             </div>
-            <div class="slide">
-                <img src="img/background7.jpg" alt="">
-                <div class="info">
-                    <h2>GET Building</h2>
-                </div>
+        </div>
+        <div class="slide">
+            <img src="img/background7.jpg" alt="">
+            <div class="info">
+                <h2>GET Building</h2>
             </div>
-            <div class="slide">
-                <img src="img/background6.jpg" alt="">
-                <div class="info">
-                    <h2>DPT Building</h2>
-                </div>
+        </div>
+        <div class="slide">
+            <img src="img/background6.jpg" alt="">
+            <div class="info">
+                <h2>DPT Building</h2>
             </div>
-            <div class="nav-slides">
-                <div class="btn active"> </div>
-                <div class="btn"> </div>
-                <div class="btn"> </div>
-            </div>
-        </div> 
+        </div>
+        <div class="nav-slides">
+            <div class="btn active"> </div>
+            <div class="btn"> </div>
+            <div class="btn"> </div>
+        </div>
+    </div> 
     <!--slides section ends-->
 
     <!--main section starts-->
@@ -62,93 +80,37 @@
         </div>
 
         <div class="card1">
-            <h1>Vehicle Passenger </h1>
-            <br>
-            <h1><span id="passenger-count"></span></h1>
-        </div>
-
-        <div class="card4">
-            <h1>Peak hours</h1>
-            <canvas id="myBarChart"></canvas>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
-            <script type="module">
-                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-                import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
-                const firebaseConfig = {
-                    apiKey: "AIzaSyAMYwrxpJqkVprEhcnCSgU7H3l4yPNKFIc",
-                    authDomain: "monitoringthesis.firebaseapp.com",
-                    databaseURL: "https://monitoringthesis-default-rtdb.asia-southeast1.firebasedatabase.app",
-                    projectId: "monitoringthesis",
-                    storageBucket: "monitoringthesis.appspot.com",
-                    messagingSenderId: "790682496758",
-                    appId: "1:790682496758:web:2dad0d5c6c9e8000dc86d7"
-                };
-            
-                const app = initializeApp(firebaseConfig);
-                const db = getDatabase(app);        
-
-                async function fetchLoginData() {
-                const times = [];
-                const studentCounts = [];
-                for (let i = 0; i < 24; i++) { // For every hour of the day
-                    const hourRef = ref(db, 'login/' + i);
-                    const snapshot = await get(hourRef);
-                    times.push(i + ':00');
-                    studentCounts.push(snapshot.exists() ? snapshot.val() : 0);
-                }
-
-                // Now create the chart with fetched data
-                const ctx = document.getElementById('myBarChart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'horizontalBar',
-                        data: {
-                            labels: times,
-                            datasets: [{
-                                label: 'Number of Students',
-                                data: studentCounts,
-                                backgroundColor: Array(24).fill('rgba(75, 192, 192, 0.2)'), // Colors for the bars
-                                borderColor: Array(24).fill('rgba(75, 192, 192, 1)'), // Colors for the bar borders
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                x: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Number of Students'
-                                    }
-                                },
-                                y: {
-                                    title: {
-                                        display: true,
-                                        text: 'Time per Hour'
-                                    }
-                                }
-                            }
-                            
-                        }
-                    });
-                }
-                fetchLoginData();
-        
-            </script>
+            <h2>Vehicle Passenger </h2>
+            <br><br>
+            <img src="img/number of passenger.png" alt="" class="number-of-passenger">       
+            <h2><span id="passenger-count"></span> / 16</h2>
         </div>
         
         <div class="card2">
-            <h1>Distance Traveled</h1> 
-            <br>
-            <h1><span id="distance-display"></span></h1>
+            <h2>Distance Traveled</h2> 
+            <br><br>
+            <img src="img/distance traveled.png" alt="" class="distance-traveled">       
+            <h2><span id="distance-display"></span></h2>
         </div>
 
         <div class="card3">
-            <h1>Air Quality</h1>
-            <br>
-            <h1><span id="co-display"></span> ppm</h1>
+            <h2>Air Quality</h2>
+            <br><br>
+            <img src="img/air quality.png" alt="" class="air-quality">       
+            <h2><span id="co-display"></span> ppm</h2>
         </div>
+
+        <div class="card4">
+            <h2>Your Ride Count </h2>
+            <br><br>
+            <img src="img/your ride count.png" alt="" class="your-ride-count">       
+            <span><h2><%= rideCount %></h2></span>
+        </div>
+
+        <div class="card5">
+            <h1>Peak Hours</h1>          
+            <canvas id="myBarChart"></canvas>     
+        </div>        
  
         <div class="umgmap">
             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -163,6 +125,12 @@
         <img src="img/UMlogo-transparent.png" alt="">
         </div>
 
+        <div class="websites"> 
+            <a href="https://umindanao.edu.ph/">Visit UM Official Website</a>
+            <a href="https://umindanao.blackboard.com/">Visit UM Black Board</a>
+            <a href="https://student.umindanao.edu.ph/login">Visit UM Student Portal</a>
+        </div>
+
         <div class="media">
             <img src="img/facebook.png" alt="">
             <img src="img/youtube.png" alt="">
@@ -170,8 +138,8 @@
         </div>
     </footer>
     <!--footer section ends-->
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="<%= '/js/frontend.js' %>"></script>     
+    <script type="module" src="/js/frontendDashboard.js"></script>   
 </body>
 </html>

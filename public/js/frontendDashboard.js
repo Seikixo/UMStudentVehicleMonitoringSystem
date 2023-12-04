@@ -1,5 +1,5 @@
 //Logout
-document.getElementById("logout").addEventListener('click', async function() {
+document.getElementById('logout').addEventListener('click', async function() {
     try {
         const response = await fetch('/logoutSession', { method: 'POST' });
         const data = await response.json();
@@ -13,6 +13,24 @@ document.getElementById("logout").addEventListener('click', async function() {
         alert("Error logging out!");
     }
 });
+
+const openAbout = document.querySelector('.about');
+const aboutModal = document.querySelector('.about-modal');
+const closeAbout = document.getElementsByClassName('close-about')[0];
+
+openAbout.addEventListener('click',()=>{   
+    aboutModal.style.display = "block";
+});
+
+closeAbout.onclick = function() {
+    aboutModal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target ===  aboutModal) {
+        aboutModal.style.display = "none";
+    }
+}
 
 //Burger menu
 const menuBtn = document.querySelector('.menu-btn')
@@ -77,19 +95,17 @@ var autoNav = function(activeClass){
 }
 autoNav();
 
-//Select Destination Form
 var socket = io.connect();  
 
 //Vehicle Passenger
 socket.on('rfidTapped', (data) => {
-    // Assuming 'data' is an object that includes passengerCount
     const passengerCount = data.passengerCount;
 
-    // Update the element in your HTML that displays the count
     const passengerCountElement = document.getElementById('passenger-count');
     if (passengerCountElement) {
         passengerCountElement.textContent = passengerCount;
     }
+
 });
 
 //Distance Traveled
@@ -112,7 +128,7 @@ attribution: '© OpenStreetMap'
 
 const customIcon = L.icon({
     iconUrl: 'img/bus-stop.png',
-    iconSize: [85, 90],
+    iconSize: [80, 85],
     iconAnchor: [42.5, 90],                       
 });
 
@@ -137,6 +153,79 @@ socket.on('gpsData', (data) => {
         fillOpacity: 0.5,  
         radius: 30        
     }).addTo(map);
-    //map.panTo([data.lat, data.lon]);
+    map.panTo([data.lat, data.lon]);
     map.setView(latlng, 17);
 });       
+
+//Peak Hours
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAMYwrxpJqkVprEhcnCSgU7H3l4yPNKFIc",
+    authDomain: "monitoringthesis.firebaseapp.com",
+    databaseURL: "https://monitoringthesis-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "monitoringthesis",
+    storageBucket: "monitoringthesis.appspot.com",
+    messagingSenderId: "790682496758",
+    appId: "1:790682496758:web:2dad0d5c6c9e8000dc86d7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);        
+
+async function fetchLoginData() {
+const times = [];
+const studentCounts = [];
+for (let i = 0; i < 24; i++) { // For every hour of the day
+    const hourRef = ref(db, 'login/' + i);
+    const snapshot = await get(hourRef);
+    times.push(i + ':00');
+    studentCounts.push(snapshot.exists() ? snapshot.val() : 0);
+}
+
+// Now create the chart with fetched data
+const ctx = document.getElementById('myBarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: times,
+            datasets: [{
+                label: 'Number of Students',
+                data: studentCounts,
+                backgroundColor: Array(24).fill('rgba(75, 192, 192, 0.2)'), // Colors for the bars
+                borderColor: Array(24).fill('rgba(75, 192, 192, 1)'), // Colors for the bar borders
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 40 
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Time per Hour'
+                    }
+                }
+            }
+            
+        }
+    });
+}
+fetchLoginData();

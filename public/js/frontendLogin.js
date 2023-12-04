@@ -1,49 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="loginUMSVMS.css">
-    <title>Login | UMSVMS</title>
-</head>
-
-<body>
-    <section>
-        <div class="um">
-            <img src="img/background2.jpg" alt="um matina">
-        </div>
-        <div class="header">
-            <h1>UM Student Vehicle Monitoring System</h1>
-        </div>
-        
-        <div class="login">  
-            <div class="box">
-                <form action="">
-                    <img src="img/University_of_Mindanao_Logo.bmp" alt="um logo"> 
-                    <br><br>                   
-                    <h2>MAIN</h2>
-                    <br><br>     
-                    <div class="inputbox">
-                        <input type="text" name="studentid" id="studentid" placeholder="Enter ID Number..." required>
-                    </div>
-                    <br><br>
-                    <div class="inputbox">
-                        <input type="password" name="studentpass" id="studentpass" placeholder="Enter Password..." required>
-                    </div>
-                    <br><br>
-                    <div class="remember">
-                        <label><input type="checkbox" name="remember" id="remember"> Remember me</label>
-                    </div>
-                    <br>
-                    <div class="submitbox">
-                        <input type="submit" name="signin" id="signin" value="Sign in">
-                    </div>
-                    <br>
-                </form>
-            </div>    
-        </div>
-    </section>
-
-    <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
@@ -78,13 +32,13 @@
                     if (userData.studentpass === studentpass) {
                         const response = await fetch('/loginSession', { method: 'POST', body: studentid }); 
                             if(response.ok) {   
-                                        // Record the login time
+                
                                 const currentTime = new Date().getHours(); // get the current hour
                                 const timeRef = ref(db, 'login/' + currentTime); // create a reference to the specific hour
                                 const timeSnapshot = await get(timeRef);
                                 let currentCount = timeSnapshot.exists() ? timeSnapshot.val() : 0;
                                 await set(timeRef, currentCount + 1); // increment the count      
-                                
+                                alert("PLEASE TAP THE SCANNER WHEN ENTERING AND EXITING THE VEHICLE");
                                 window.location.href = "/dashboard";                               
                             } else {
                                 alert("Error setting session.");
@@ -100,6 +54,3 @@
                 alert("Error checking credentials!");
             }
         });
-    </script>
-</body>
-</html>

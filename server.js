@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const PORT = process.env.PORT || 6969;
+const PORT = process.env.PORT;
 
 const admin = require('firebase-admin');
 const { error } = require('console');

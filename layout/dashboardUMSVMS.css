@@ -56,6 +56,47 @@ body{
     padding-right: 100px;
 }
 
+.destination-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 4; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+}
+
+.destination-content {
+    background-color: #fefefe;
+    margin: 15% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 70%; 
+    font-size: 25px;
+}
+
+.destination-content img{
+    width: 100%;
+    height: 100%;
+}
+
+.close-destination{
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+  
+.close-destination:hover,
+.close-destination:focus{
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .about-modal {
     display: none; 
     position: fixed; 
@@ -381,7 +422,17 @@ a:hover:after{
     }
 
     .about-content {
-        width: 80%; /* Could be more or less, depending on screen size */
+        width: 80%; 
+    }
+
+    .destination-content{
+        width: 100%;
+        height: 80%;
+    }
+
+    .destination-content img{
+        width: 100%;
+        height: 80%;
     }
 
     .system{

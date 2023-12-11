@@ -14,6 +14,7 @@ document.getElementById('logout').addEventListener('click', async function() {
     }
 });
 
+//About
 const openAbout = document.querySelector('.about');
 const aboutModal = document.querySelector('.about-modal');
 const closeAbout = document.getElementsByClassName('close-about')[0];
@@ -29,6 +30,25 @@ closeAbout.onclick = function() {
 window.onclick = function(event) {
     if (event.target ===  aboutModal) {
         aboutModal.style.display = "none";
+    }
+}
+
+//Destination
+const openDestination = document.querySelector('.destination');
+const destinationModal = document.querySelector('.destination-modal');
+const closeDestination = document.getElementsByClassName('close-destination')[0];
+
+openDestination.addEventListener('click',()=>{   
+    destinationModal.style.display = "block";
+});
+
+closeDestination.onclick = function() {
+    destinationModal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target ===  destinationModal) {
+        destinationModal.style.display = "none";
     }
 }
 

@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8081;
 
 const admin = require('firebase-admin');
 const { error } = require('console');
@@ -23,7 +23,7 @@ admin.initializeApp({
         type: process.env.FIREBASE_TYPE,
         project_id: process.env.FIREBASE_PROJECT_ID,
         private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-        private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        private_key: process.env.FIREBASE_PRIVATE_KEY,
         client_email: process.env.FIREBASE_CLIENT_EMAIL,
         client_id: process.env.FIREBASE_CLIENT_ID,
         auth_uri: process.env.FIREBASE_AUTH_URI,
@@ -115,25 +115,38 @@ app.post('/logoutSession', (req, res) => {
 
 app.post('/gpsData', (req, res) => {
     let data = '';
-    req.on('data', chunk =>{
+    req.on('data', chunk => {
         data += chunk;
     });
 
     req.on('end', () => {
         console.log('Received data:', data);
-        const [lat, lon,] = data.split(',').map(d => parseFloat(d));
+        const [lat, lon] = data.split(',').map(d => parseFloat(d));
 
-        if(lastGpsData) {
+        // Initialize lastGpsData if it's not set
+        if (!lastGpsData) {
+            lastGpsData = {lat, lon};
+        } else {
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
-            totalDistance += distance;
-        }
-        lastGpsData = {lat, lon};
 
-        io.emit('gpsData', {lat, lon,});
+            // Define a threshold (in kilometers) for movement to consider
+            const movementThreshold = 0.1; // 100 meters, adjust as needed
+
+            // Only add to totalDistance if the movement is above the threshold
+            if (distance >= movementThreshold) {
+                totalDistance += distance;
+            }
+
+            // Update lastGpsData for the next calculation
+            lastGpsData = {lat, lon};
+        }
+
+        io.emit('gpsData', {lat, lon});
         io.emit('totalDistance', totalDistance);
         res.json({ status: 'GPS success' });
     });
 });
+
 
 app.post('/coData', (req, res) => {
     let data = '';

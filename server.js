@@ -20,18 +20,18 @@ let coConcentration = null;
 
 admin.initializeApp({
     credential: admin.credential.cert({
-        type: process.env.FIREBASE_TYPE,
-        project_id: process.env.FIREBASE_PROJECT_ID,
-        private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-        private_key: process.env.FIREBASE_PRIVATE_KEY,
-        client_email: process.env.FIREBASE_CLIENT_EMAIL,
-        client_id: process.env.FIREBASE_CLIENT_ID,
-        auth_uri: process.env.FIREBASE_AUTH_URI,
-        token_uri: process.env.FIREBASE_TOKEN_URI,
-        auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-        client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
+        type: "service_account",
+        project_id: "monitoringthesis",
+        private_key_id: "bf974f7aab9aac67c0da87cb2d54ed889e0a05ed",
+        private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC+hxFADb4FjkI1\ny8a4HG5wLMz/0OaKQPI0Y1OBstwB8RxPeL5fPJK5C2+TnGtazZioEeim7uCkKoJM\nz8q/pm91ab13TXvZ8K2FBwU3sBij4NnQiB3lNwcXjxSfCws854Ch+Di/fK6yNBFM\nT9xGKbM9LDhJActzUj5+ampE3pwCrVwbeFkZSRxM/qanDsLBKAarWwrQ2ild1XB1\nBjtDnTNScWocKm/06UgY03S7Ela8b6k9Y43PbSnwxjBq3E5NybcVoV6hr43NP4Ub\nSHB12lTKrPDDH00dp+RR9OgkN6PqxA4N1cbq+jyb2TfDazJiFYk8gL+fBNkUmrkh\nOQM+lW6PAgMBAAECggEAFVkuYPj+jmzO6mw3i1r+3OmIMYSHcH0FJphCkR5+HGbs\nfyh5Bv7TNJIddx1obLeWIARHB1LDhQw7pr5Zv3kMtXabA4qBEtMu/jWNK3I7MJGk\nllh00RbbX+kTrHEhBJAED8yvvx+0thmzc9OMS6hR1yGPT6Q4gbwjbdLKrtuAAPnt\n4uB+P01OgyM12HQHAS2CWVUL9gH2Gl/bWUr8m+/UyhrwXk7CQILp1EKeyiICGRTZ\nIcAEOyMthElASPt0nIGpuAnBwmbsElVaDkwNqV7Dsc4Jiw1MIG88+Y+uLG9iWal+\n6N9l2Ihn9Ub3/ctJxiQzfoU9KUEDH69VjpRast2BQQKBgQD8y1+sGw6p9rVfb1PA\nhTq7UHMoRoCAXgrNk2n9p4xDTOom/cGeoGk8kk86LzHBpsrcONrZ4JVmSsav4T4Q\nfHoH+gpZ78Y5dzDkcybNexERGOt8nPEVVm1YdnMYgkrKUDRml9wqd0kr0ydmZPIX\naN1KNtJGgk2aRBrVNXSfkEo8cQKBgQDA8Y/W/yxqX4XJbPrqz8S7ZN/AgIWg2mXr\nVHqjNeIa1XO/FujnG+/2Q/Y2bgIKmYbh2BSRbSHJkgHaTz7lzh4gU0U9fZJ2D8Xq\ngXpNeQRCcVdD0PkMO9/VevzJ41FRHoGA8Aa3n4P1+Y+5usPdFEvf0zMe63ZGBKLw\n5Hj5YVva/wKBgQC0ptmd8lAOYgHHS5V8dTk9dwZ0d72I/quVsY0C+eMgjSyf5KOj\nKltKL/xyRhu2me1KZ07ueLILQdCvC7YArhO+847GKrVrh6Pm/ety2EmgAED48mbO\nqs7FcxBZKXMtFRf9YPSzXD9sFB+J6wWeeQ/64yZtwNyYK6dJSkQna0PB4QKBgGdC\nYJrNofWj/bPZMUhtvXoU+HLL1bhKafVSFvg2JDX8Op/wIOFe4EPKB4EFyu3lUHyZ\n6hgScdyw2XD+rEjM0O634fyQscuhkWh5tvyzYYY1pmBS/JaBjL9xvMxHbgOd8e0R\niGbJZhREZZkezSgKbrjxDRDlLz01ygZmICBG7KP9AoGBAIwgy4+hA3LdOTOq/9YR\nxtqVzr4sE7CA1pkZtH3xbPNrZze3SMq0KihjyzeWFtvycBbYdpXQWJKoBDu705hT\nd8T5a0JvL/DPfREWtODc7giU8nhVih39LIrB5Z9IWwNZjRh12cJh+10bMtiVVFM5\nXLn8x426fuju1EU0XpeGc5qn\n-----END PRIVATE KEY-----\n",
+        client_email: "firebase-adminsdk-p0kb9@monitoringthesis.iam.gserviceaccount.com",
+        client_id: "105095020168626548225",
+        auth_uri: "https://accounts.google.com/o/oauth2/auth",
+        token_uri: "https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+        client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-p0kb9%40monitoringthesis.iam.gserviceaccount.com"
     }),
-  databaseURL: process.env.FIREBASE_DATABASE_URL 
+  databaseURL: "https://monitoringthesis-default-rtdb.asia-southeast1.firebasedatabase.app" 
 });
 
 const db = admin.database();

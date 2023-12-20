@@ -123,16 +123,13 @@ app.post('/gpsData', (req, res) => {
         console.log('Received data:', data);
         const [lat, lon] = data.split(',').map(d => parseFloat(d));
 
-        // Initialize lastGpsData if it's not set
         if (!lastGpsData) {
             lastGpsData = {lat, lon};
         } else {
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
 
-            // Define a threshold (in kilometers) for movement to consider
-            const movementThreshold = 0.1; // 100 meters, adjust as needed
+            const movementThreshold = 0.05; 
 
-            // Only add to totalDistance if the movement is above the threshold
             if (distance >= movementThreshold) {
                 totalDistance += distance;
             }

@@ -128,7 +128,7 @@ app.post('/gpsData', (req, res) => {
         } else {
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
 
-            const movementThreshold = 0.05; 
+            const movementThreshold = 0.02; 
 
             if (distance >= movementThreshold) {
                 totalDistance += distance;

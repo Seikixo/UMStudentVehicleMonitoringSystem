@@ -148,7 +148,7 @@ attribution: '© OpenStreetMap'
 
 const customIcon = L.icon({
     iconUrl: 'img/bus-stop.png',
-    iconSize: [80, 85],
+    iconSize: [75, 80],
     iconAnchor: [42.5, 90],                       
 });
 

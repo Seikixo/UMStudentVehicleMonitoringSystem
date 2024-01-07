@@ -17,6 +17,7 @@ let locationData = null;
 let lastGpsData = null;
 let totalDistance = 0;
 let coConcentration = null;
+let lastUpdateTime = Date.now();
 
 admin.initializeApp({
     credential: admin.credential.cert({
@@ -122,25 +123,23 @@ app.post('/gpsData', (req, res) => {
     req.on('end', () => {
         console.log('Received data:', data);
         const [lat, lon] = data.split(',').map(d => parseFloat(d));
+        const currentTime = Date.now();
 
-        if (!lastGpsData) {
-            lastGpsData = {lat, lon};
-        } else {
+        if (lastGpsData && (currentTime - lastUpdateTime >= 60000)) { 
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
+            totalDistance += distance;
+            console.log(`Distance since last minute: ${distance} km, Total Distance: ${totalDistance} km`);
 
-            const movementThreshold = 0.02; 
+            // Update the 'lastUpdateTime' for the next interval calculation
+            lastUpdateTime = currentTime;
 
-            if (distance >= movementThreshold) {
-                totalDistance += distance;
-            }
-
-            // Update lastGpsData for the next calculation
-            lastGpsData = {lat, lon};
+            // Emit the new total distance
+            io.emit('totalDistance', totalDistance);
         }
 
-        io.emit('gpsData', {lat, lon});
-        io.emit('totalDistance', totalDistance);
-        res.json({ status: 'GPS success' });
+        lastGpsData = { lat, lon };
+        io.emit('gpsData', { lat, lon });
+        res.json({ status: 'GPS success', totalDistance });
     });
 });
 

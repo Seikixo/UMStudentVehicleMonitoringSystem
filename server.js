@@ -125,7 +125,7 @@ app.post('/gpsData', (req, res) => {
         const [lat, lon] = data.split(',').map(d => parseFloat(d));
         const currentTime = Date.now();
 
-        if (lastGpsData && (currentTime - lastUpdateTime >= 60000)) { 
+        if (lastGpsData && (currentTime - lastUpdateTime >= 20000)) { 
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
             totalDistance += distance;
             console.log(`Distance since last minute: ${distance} km, Total Distance: ${totalDistance} km`);

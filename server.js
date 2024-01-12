@@ -128,7 +128,7 @@ app.post('/gpsData', (req, res) => {
         if (lastGpsData && (currentTime - lastUpdateTime >= 10000)) { 
             const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
             totalDistance += distance;
-            console.log(`Distance since last minute: ${distance} km, Total Distance: ${totalDistance} km`);
+            console.log(`Total Distance: ${totalDistance} km`);
 
             // Update the 'lastUpdateTime' for the next interval calculation
             lastUpdateTime = currentTime;

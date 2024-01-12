@@ -130,7 +130,7 @@ socket.on('rfidTapped', (data) => {
 
 //Distance Traveled
 socket.on('totalDistance', (distance) => {
-    document.getElementById('distance-display').innerText = `${distance.toFixed(2)} km`;  
+    document.getElementById('distance-display').innerText = `${distance.toFixed(3)} km`;  
 });
 
 //Air Quality

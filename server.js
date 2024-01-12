@@ -133,8 +133,8 @@ app.post('/gpsData', (req, res) => {
             // Update the 'lastUpdateTime' for the next interval calculation
             lastUpdateTime = currentTime;
 
-            // Emit the new total distance
-            io.emit('totalDistance', totalDistance);
+            const adjustedDistance = (totalDistance * 10).toFixed(3);
+            io.emit('totalDistance', adjustedDistance);
         }
 
         lastGpsData = { lat, lon };

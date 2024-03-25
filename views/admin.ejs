@@ -1,0 +1,173 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="admin-style.css">
+    <link rel="icon" type="image/jpg" href="img/OBSENTRY LOGOFAVICON-2.jpg">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <title>Dashboard | OBSENTRY</title>
+</head>
+<body>
+    <!--header section starts-->
+    <header class="navbar">
+        <img src="img/OBSENTRY LOGO-2.png" alt="system-logo" class="system-logo">
+        <h1 class="system">OBSENTRY</h1>
+        <ul class="links">    
+            <li><a href="#" class="about">About</a></li>
+            <li><a href="#" class="destination">Destination</a></li>
+            <li><a href="#" id="logout">Logout</a></li>
+            <li><h2>Admin <%= admin.fullName %> </h2></li>
+        </ul>
+        
+        <img src="img/menu_FILL0_wght400_GRAD0_opsz48.png" alt="menu-btn" class="menu-btn">
+    </header>
+    <!--header section ends-->
+
+    <!--popup section starts-->
+    <div class="about-modal">
+        <div class="about-content">
+            <span class="close-about">&times;</span>
+            <h1>About</h1>
+            <p>
+                Vehicle Innovation is very frequent nowadays, they want
+                to enhance passenger or driver experience in this fast
+                pace era, with that said OBSENTRY gives a reliable 
+                innovation in terms of vehicle monitoring. This is a one step                               
+                forward in innovating the student vehicle in University of 
+                Mindanao.
+            </p>
+        </div>
+    </div>
+
+    <div class="destination-modal">
+        <div class="destination-content">
+            <span class="close-destination">&times;</span>
+            <img src="img/matina.jpg" alt="">
+        </div>
+    </div>
+    <!--popup section ends-->
+
+    <!--slides section starts-->
+    <div class="img-slides">
+        <div class="slide active">
+            <img src="img/background3.jpg" alt="">
+            <div class="info">
+                <h2>BE Building</h2>
+            </div>
+        </div>
+        <div class="slide">
+            <img src="img/background7.jpg" alt="">
+            <div class="info">
+                <h2>GET Building</h2>
+            </div>
+        </div>
+        <div class="slide">
+            <img src="img/background6.jpg" alt="">
+            <div class="info">
+                <h2>DPT Building</h2>
+            </div>
+        </div>
+        <div class="nav-slides">
+            <div class="btn active"> </div>
+            <div class="btn"> </div>
+            <div class="btn"> </div>
+        </div>
+    </div> 
+    <!--slides section ends-->
+
+    <!--main section starts-->
+    <main class="main">
+        <div class="information"> 
+            <h1>System Information</h1>
+        </div>
+
+        <div class="card1">
+            <h3>Vehicle Passenger <img src="img/number of passenger.png" alt="" class="number-of-passenger"></h3>       
+            <h2>Vehicle 1: <span id="passenger-count1"></span>/16</h2>      
+            <h2>Vehicle 2: <span id="passenger-count2"></span>/16</h2>
+        </div>
+
+        <div class="card2">
+            <h3>Air Quality <img src="img/air quality.png" alt="" class="air-quality"></h3>              
+            <h2>Vehicle 1: <span id="co-display1"></span> ppm</h2>
+            <h2>Vehicle 2: <span id="co-display2"></span> ppm</h2>
+        </div>
+
+
+        <div class="card3">
+            <h3>Distance Traveled <img src="img/distance traveled.png" alt="" class="distance-traveled"></h3>              
+            <h2>Vehicle 1: <span id="distance-display1"></span> km</h2>
+            <h2>Vehicle 2: <span id="distance-display2"></span> km</h2>
+        </div>
+
+        <div class="card4">
+            <h3>Total Vehicle Use <img src="img/your ride count.png" alt="" class="total-rides"></h3>
+            <h2><span id="total-display"></span></h2>            
+        </div>
+
+        <div class="card5">
+            <h1>Peak Hours</h1>          
+            <canvas id="myBarChart"></canvas>     
+        </div> 
+
+        <div class="card6">
+            <h3>Vehicle1 Traveled Logs</h3>
+            <h3><span id="vehicle1-traveled"></span></h3>
+        </div>
+        
+        <div class="card7">
+            <h3>Vehicle2 Traveled Logs</h3>
+            <h3><span id="vehicle2-traveled"></span></h3>
+        </div>
+ 
+        <div class="um-map1">
+            <div class="map-banner">
+                <h2>Vehicle 1 Location</h2>
+                <button class="focus-vehicle1">Focus Vehicle 1</button>
+            </div>
+            <br>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <div class="um-mapstyle1" id="map1"></div>
+        </div> 
+        
+        <div class="um-map2">
+            <div class="map-banner">
+                <h2>Vehicle 2 Location</h2>
+                <button class="focus-vehicle2">Focus Vehicle 2</button>
+            </div>
+            <br>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <div class="um-mapstyle2" id="map2"></div>
+        </div>
+    </main>
+    <!--main section ends-->
+ 
+    <!--footer section starts-->
+    <footer class="footer">
+        <div class="umlogo">
+        <img src="img/UMlogo-transparent.png" alt="">
+        </div>
+
+        <div class="websites"> 
+            <a href="https://umindanao.edu.ph/">Visit UM Official Website</a>
+            <a href="https://umindanao.blackboard.com/">Visit UM Black Board</a>
+            <a href="https://student.umindanao.edu.ph/login">Visit UM Student Portal</a>
+        </div>
+
+        <div class="media">
+            <img src="img/facebook.png" alt="">
+            <img src="img/youtube.png" alt="">
+            <img src="img/twitter.png" alt="">
+        </div>
+    </footer>
+    <!--footer section ends-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="/js/admin-dashboard-frontend.js"></script>   
+</body>
+</html>

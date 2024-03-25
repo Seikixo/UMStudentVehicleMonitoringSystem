@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="dashboardUMSVMS.css">
+    <link rel="stylesheet" href="student-style.css">
     <link rel="icon" type="image/jpg" href="img/OBSENTRY LOGOFAVICON-2.jpg">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -21,7 +21,7 @@
             <li><a href="#" class="about">About</a></li>
             <li><a href="#" class="destination">Destination</a></li>
             <li><a href="#" id="logout">Logout</a></li>
-            <li><h2>Welcome <%= user.fullName %> </h2></li>
+            <li><h2>Student <%= user.fullName %> </h2></li>
         </ul>
         
         <img src="img/menu_FILL0_wght400_GRAD0_opsz48.png" alt="menu-btn" class="menu-btn">
@@ -87,42 +87,50 @@
         </div>
 
         <div class="card1">
-            <h2>Vehicle Passenger </h2>
-            <br><br>
-            <img src="img/number of passenger.png" alt="" class="number-of-passenger">       
-            <h2><span id="passenger-count"></span> / 16</h2>
+            <h3>Vehicle Passenger <img src="img/number of passenger.png" alt="" class="number-of-passenger"></h3>       
+            <h2>Vehicle 1: <span id="passenger-count1"></span>/16</h2>      
+            <h2>Vehicle 2: <span id="passenger-count2"></span>/16</h2>
         </div>
-        
+
         <div class="card2">
-            <h2>Distance Traveled</h2> 
-            <br><br>
-            <img src="img/distance traveled.png" alt="" class="distance-traveled">       
-            <h2><span id="distance-display"></span> km</h2>
+            <h3>Your Ride Status <img src="img/your ride count.png" alt="" class="your-ride-count"></h3>         
+            <span><% if (isRiding === true) { %>
+                <h2>You are IN </h2>
+            <% } else { %>
+                <h2>You are OUT </h2>
+            <% } %></span>
         </div>
 
         <div class="card3">
-            <h2>Air Quality</h2>
-            <br><br>
-            <img src="img/air quality.png" alt="" class="air-quality">       
-            <h2><span id="co-display"></span> ppm</h2>
+            <h3>Air Quality <img src="img/air quality.png" alt="" class="air-quality"></h3>              
+            <h2>Vehicle 1: <span id="co-display1"></span> ppm</h2>
+            <h2>Vehicle 2: <span id="co-display2"></span> ppm</h2>
         </div>
 
         <div class="card4">
-            <h2>Your Ride Count </h2>
-            <br><br>
-            <img src="img/your ride count.png" alt="" class="your-ride-count">       
-            <span><h2><%= rideCount %></h2></span>
-        </div>
-
-        <div class="card5">
             <h1>Peak Hours</h1>          
             <canvas id="myBarChart"></canvas>     
         </div>        
  
-        <div class="umgmap">
+        <div class="um-map1">
+            <div class="map-banner">
+                <h2>Vehicle 1 Location</h2>
+                <button class="focus-vehicle1">Focus Vehicle 1</button>
+            </div>
+            <br>
             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-            <div class="umgmapstyle" id="map"></div>
-        </div>     
+            <div class="um-mapstyle1" id="map1"></div>
+        </div> 
+        
+        <div class="um-map2">
+            <div class="map-banner">
+                <h2>Vehicle 2 Location</h2>
+                <button class="focus-vehicle2">Focus Vehicle 2</button>
+            </div>
+            <br>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <div class="um-mapstyle2" id="map2"></div>
+        </div>
     </main>
     <!--main section ends-->
  
@@ -147,6 +155,6 @@
     <!--footer section ends-->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="/js/frontendDashboard.js"></script>   
+    <script type="module" src="/js/student-dashboard-frontend.js"></script>   
 </body>
 </html>

@@ -2,51 +2,48 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="loginUMSVMS.css">
+    <link rel="stylesheet" href="login-style.css">
     <link rel="icon" type="image/jpg" href="img/OBSENTRY LOGOFAVICON-2.jpg">
     <title>Login | OBSENTRY</title>
 </head>
 
 <body>
-    <section>
+    <div class="header">
+        <img src="img/OBSENTRY LOGO-2.png" alt="system-logo" class="system-logo">
+        <h2>OBSENTRY</h2>
+    </div>
+
+    <div class="container">
         <div class="um">
             <img src="img/background2.jpg" alt="um matina">
         </div>
 
-        <div class="header">
-            <img src="img/OBSENTRY LOGO-2.png" alt="system-logo" class="system-logo">
-            <h1>OBSENTRY</h1>
-        </div> 
-        
-        <div class="login"> 
-            <div class="box">
-                <form action="">
-                    <img src="img/University_of_Mindanao_Logo.bmp" alt="um logo"> 
-                    <br><br>                   
-                    <h2>MAIN</h2>
-                    <br><br>     
-                    <div class="inputbox">
-                        <input type="text" name="studentid" id="studentid" placeholder="Enter ID Number..." required>
-                    </div>
-                    <br><br>
-                    <div class="inputbox">
-                        <input type="password" name="studentpass" id="studentpass" placeholder="Enter Password..." required>
-                    </div>
-                    <br><br>
-                    <div class="remember">
-                        <label><input type="checkbox" name="remember" id="remember"> Remember me</label>
-                    </div>
-                    <br>
-                    <div class="submitbox">
-                        <input type="submit" name="signin" id="signin" value="Sign in">
-                    </div>
-                    <br>
+        <div class="main">  	
+            <input type="checkbox" id="chk" aria-hidden="true">
+    
+            <div class="student">
+                <form class="form">
+                    <label for="chk" aria-hidden="true">Student</label>
+                    <input class="input" type="text" name="id" id="studentid" placeholder="Enter I.D." required>
+                    <input class="input" type="password" name="pswd" id="studentpass" placeholder="Password" required>
+                    <button id="login-student" class="login-student">Log in</button>
                 </form>
-            </div>    
+            </div>
+    
+            <div class="admin">
+                <form class="form">
+                    <label for="chk" aria-hidden="true">Admin</label>
+                    <input class="input" type="text" name="id" id="adminid" placeholder="Enter I.D." required>
+                    <input class="input" type="password" name="pswd" id="adminpass" placeholder="Password" required>
+                    <button id="login-admin" class="login-admin">Log in</button>
+                </form>
+            </div>
         </div>
-    </section>
+    </div>
    
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="/js/frontendLogin.js"></script>
+    <script type="module" src="/js/student-login-frontend.js"></script>
+    <script type="module" src="/js/admin-login-frontend.js"></script>
+
 </body>
 </html>

@@ -13,11 +13,25 @@ const PORT = process.env.PORT || 8081;
 const admin = require('firebase-admin');
 const { error } = require('console');
 
-let locationData = null;
-let lastGpsData = null;
-let totalDistance = 0;
-let coConcentration = null;
-let lastUpdateTime = Date.now();
+let lastGpsData1 = null;
+let totalDistance1 = 0;
+let coConcentration1 = null;
+let lastUpdateTime1 = Date.now();
+
+let lastGpsData2 = null;
+let totalDistance2 = 0;
+let coConcentration2 = null;
+let lastUpdateTime2 = Date.now();
+
+const places = [
+    { name: 'FEA Building', lat: 7.06525551064501, lon: 125.59501217086209 },
+    { name: 'BE Building', lat: 7.065487090855532, lon: 125.59622452928257 },
+    { name: 'GET Building', lat: 7.0674072029982735, lon: 125.59653069205753 }, 
+    { name: 'DPT Building', lat: 7.068249571701043, lon: 125.59571354849236 },
+    { name: 'Matina Gate', lat: 7.065088643761288, lon: 125.59814362983917 },
+    { name: 'PS Building', lat: 7.068326470685302, lon: 125.59466790296308 },
+    { name: 'Maa Gate', lat: 7.067525260806721, lon: 125.59197362402965 },
+  ];
 
 admin.initializeApp({
     credential: admin.credential.cert({
@@ -51,13 +65,54 @@ app.use(express.static('layout'));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
+async function fetchLoginDataFromDatabase() {
+    const times = [];
+    const studentCounts = [];
+    for (let i = 0; i < 24; i++) { // For every hour of the day
+        const hourRef = db.ref('login/' + i);
+        const snapshot = await hourRef.once('value');
+        times.push(i + ':00');
+        studentCounts.push(snapshot.exists() ? snapshot.val() : 0);
+    }
+    return { times, studentCounts };
+}
+
+async function fetchVehicle1Data() {
+    try {
+        const snapshot = await db.ref('vehicle1Traveled').once('value');
+        return snapshot.val() || {};
+    } catch (error) {
+        console.error('Error fetching vehicle 1 data:', error);
+        throw error;
+    }
+}
+
+async function fetchVehicle2Data() {
+    try {
+        const snapshot = await db.ref('vehicle2Traveled').once('value');
+        return snapshot.val() || {};
+    } catch (error) {
+        console.error('Error fetching vehicle 2 data:', error);
+        throw error;
+    }
+}
 
 function ensureAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
         next();  
-    } else {
+    } 
+    else {
         res.redirect('/');  
     }
+}
+
+function ensureAuthAdmin(req, res, next) {
+    if (req.session && req.session.admin) {
+        next();
+    } 
+    else {
+        res.redirect('/');
+    } 
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -76,22 +131,44 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return distance; 
 }
 
-const passengerCountRef = db.ref("passengerCount");
+const passengerCountRef1 = db.ref("passengerCount1");
+const passengerCountRef2 = db.ref("passengerCount2");
+const userRef = db.ref("user");
 
 io.on('connection', (socket) => {
     console.log('User connected');
-    socket.emit('totalDistance', totalDistance);
 
-    passengerCountRef.once('value', (snapshot) => {
+    socket.emit('totalDistance1', totalDistance1);
+    socket.emit('totalDistance2', totalDistance2);
+
+    userRef.once('value', (snapshot) => {
+        const data = snapshot.val();
+        let totalRideCount = 0;
+
+        Object.values(data || {}).forEach((user) => {
+            totalRideCount += user.rideCount || 0;
+        });
+
+        const totalVehicleUseRef = db.ref('totalVehicleUse');
+        totalVehicleUseRef.set(totalRideCount);
+
+        io.emit('totalRideCountUpdate', totalRideCount);
+    });
+
+    passengerCountRef1.once('value', (snapshot) => {
         const currentCount = snapshot.val() || 0;
-        socket.emit('rfidTapped', { passengerCount: currentCount });
+        socket.emit('rfidTapped1', { passengerCount1: currentCount });
+    });
+
+    passengerCountRef2.once('value', (snapshot) => {
+        const currentCount = snapshot.val() || 0;
+        socket.emit('rfidTapped2', { passengerCount2: currentCount });
     });
 
     socket.on('disconnect', () => {
     console.log('User disconnected');
     });
 });
-
 
 app.post('/loginSession', (req, res) => {
     let data = '';
@@ -100,6 +177,17 @@ app.post('/loginSession', (req, res) => {
     });
     req.on('end', () => {
         req.session.user = { id: data };
+        res.send('Session set');
+    });
+});
+
+app.post('/adminSession', (req, res) => {
+    let data = '';
+    req.on('data', chunk => {
+        data += chunk;
+    });
+    req.on('end', () => {
+        req.session.admin = { id: data };
         res.send('Session set');
     });
 });
@@ -114,7 +202,7 @@ app.post('/logoutSession', (req, res) => {
     });
 });
 
-app.post('/gpsData', (req, res) => {
+app.post('/gpsData1', (req, res) => {
     let data = '';
     req.on('data', chunk => {
         data += chunk;
@@ -125,26 +213,82 @@ app.post('/gpsData', (req, res) => {
         const [lat, lon] = data.split(',').map(d => parseFloat(d));
         const currentTime = Date.now();
 
-        if (lastGpsData && (currentTime - lastUpdateTime >= 10000)) { 
-            const distance = calculateDistance(lastGpsData.lat, lastGpsData.lon, lat, lon);
-            totalDistance += distance;
-            console.log(`Total Distance: ${totalDistance} km`);
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
+        const day = String(currentDate.getDate()).padStart(2, '0');
 
-            // Update the 'lastUpdateTime' for the next interval calculation
-            lastUpdateTime = currentTime;
+        const currentDateKey = `${year}-${month}-${day}`;
 
-            const adjustedDistance = (totalDistance * 10).toFixed(3);
-            io.emit('totalDistance', adjustedDistance);
+        if (lastGpsData1 && (currentTime - lastUpdateTime1 >= 10000)) { 
+            const distance = calculateDistance(lastGpsData1.lat, lastGpsData1.lon, lat, lon);
+            totalDistance1 += distance;
+            console.log(`Total Distance: ${totalDistance1} km`);
+
+            lastUpdateTime1 = currentTime;
+
+            db.ref('vehicle1Traveled').once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    db.ref('vehicle1Traveled').set({});
+                }
+            });
+
+            const adjustedDistance1 = (totalDistance1 * 10).toFixed(3);
+            db.ref(`vehicle1Traveled/${currentDateKey}`).set(adjustedDistance1);
+
+            io.emit('totalDistance1', adjustedDistance1);
         }
 
-        lastGpsData = { lat, lon };
-        io.emit('gpsData', { lat, lon });
-        res.json({ status: 'GPS success', totalDistance });
+        lastGpsData1 = { lat, lon };
+        io.emit('gpsData1', { lat, lon });
+        res.json({ status: 'GPS success', totalDistance1 });
     });
 });
 
+app.post('/gpsData2', (req, res) => {
+    let data = '';
+    req.on('data', chunk => {
+        data += chunk;
+    });
 
-app.post('/coData', (req, res) => {
+    req.on('end', () => {
+        console.log('Received data:', data);
+        const [lat, lon] = data.split(',').map(d => parseFloat(d));
+        const currentTime = Date.now(); 
+
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
+        const day = String(currentDate.getDate()).padStart(2, '0');
+
+        const currentDateKey = `${year}-${month}-${day}`;
+
+        if (lastGpsData2 && (currentTime - lastUpdateTime2 >= 10000)) { 
+            const distance = calculateDistance(lastGpsData2.lat, lastGpsData2.lon, lat, lon);
+            totalDistance2 += distance;
+            console.log(`Total Distance: ${totalDistance2} km`);
+
+            lastUpdateTime2 = currentTime;
+
+            db.ref('vehicle2Traveled').once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    db.ref('vehicle2Traveled').set({});
+                }
+            });
+
+            const adjustedDistance2 = (totalDistance2 * 10).toFixed(3);
+            db.ref(`vehicle2Traveled/${currentDateKey}`).set(adjustedDistance2);
+  
+            io.emit('totalDistance2', adjustedDistance2);
+        }
+
+        lastGpsData2 = { lat, lon };
+        io.emit('gpsData2', { lat, lon });
+        res.json({ status: 'GPS success', totalDistance2 });
+    });
+});
+
+app.post('/coData1', (req, res) => {
     let data = '';
     req.on('data', chunk => {
         data += chunk;
@@ -152,14 +296,29 @@ app.post('/coData', (req, res) => {
 
     req.on('end', () => {
         console.log('Recieved data:', data);
-        const coConcentration = parseFloat(data);
+        const coConcentration1 = parseFloat(data);
 
-        io.emit('coData', coConcentration);
+        io.emit('coData1', coConcentration1);
         res.json({ status: 'CO success' });
     });
 });
 
-app.post('/rfidTap', (req, res) => {
+app.post('/coData2', (req, res) => {
+    let data = '';
+    req.on('data', chunk => {
+        data += chunk;
+    });
+
+    req.on('end', () => {
+        console.log('Recieved data:', data);
+        const coConcentration2 = parseFloat(data);
+
+        io.emit('coData2', coConcentration2);
+        res.json({ status: 'CO success' });
+    });
+});
+
+app.post('/rfidData1', (req, res) => {
     console.log("Received a request");
     let data = '';
     req.on('data', chunk => {
@@ -167,7 +326,7 @@ app.post('/rfidTap', (req, res) => {
     });
 
     const dbRef = db.ref("user");
-    const passengerCountRef = db.ref("passengerCount");
+    const passengerCountRef = db.ref("passengerCount1");
 
     req.on('end', () => {
         console.log("Received data:", data);
@@ -184,29 +343,81 @@ app.post('/rfidTap', (req, res) => {
                     const userId = childSnapshot.key;
                     const userRef = dbRef.child(userId);
     
-                    // Retrieve the current passenger count
                     passengerCountRef.once('value', countSnapshot => {
-                        let passengerCount = countSnapshot.val() || 0;
+                        let passengerCount1 = countSnapshot.val() || 0;
     
                         if (user.isRiding) {
-                            // User is stepping out of the vehicle
-                            passengerCount = Math.max(0, passengerCount - 1);
+                            passengerCount1 = Math.max(0, passengerCount1 - 1);
                             userRef.update({ isRiding: false });
                         } else {
-                            // User is riding the vehicle
                             userRef.child('rideCount').transaction((rideCount) => {
                                 return (rideCount || 0) + 1;
                             });  
-                            passengerCount += 1;                           
+                            passengerCount1 += 1;                           
                             userRef.update({ isRiding: true });
                         }
     
-                        // Update the passenger count in Firebase
-                        passengerCountRef.set(passengerCount);
+                        passengerCountRef.set(passengerCount1);
     
-                        // Emit the updated passenger count
-                        io.emit('rfidTapped', { passengerCount: passengerCount, isRiding: user.isRiding }); 
-                        res.json({ status: 'RFID success', passengerCount: passengerCount, isRiding: user.isRiding });
+                        io.emit('rfidTapped1', { passengerCount1: passengerCount1, isRiding: user.isRiding }); 
+                        res.json({ status: 'RFID success', passengerCount1: passengerCount1, isRiding: user.isRiding });
+                    });
+    
+                    return true; 
+                }
+            });    
+            if (!found) {
+                res.status(400).json({ status: 'error', message: 'RFID not found' });
+            }
+        }).catch(error => {
+            res.status(500).json({ status: 'error', message: 'An error occurred while checking the RFID' });
+        });    
+    });
+});
+
+app.post('/rfidData2', (req, res) => {
+    console.log("Received a request");
+    let data = '';
+    req.on('data', chunk => {
+        data += chunk;
+    });
+
+    const dbRef = db.ref("user");
+    const passengerCountRef = db.ref("passengerCount2");
+
+    req.on('end', () => {
+        console.log("Received data:", data);
+        const receivedRfid = data;
+
+        dbRef.once('value', snapshot => {
+            let found = false;
+    
+            snapshot.forEach(childSnapshot => {
+                const user = childSnapshot.val();
+
+                if(user.rfidHex === receivedRfid) {
+                    found = true;
+                    const userId = childSnapshot.key;
+                    const userRef = dbRef.child(userId);
+    
+                    passengerCountRef.once('value', countSnapshot => {
+                        let passengerCount2 = countSnapshot.val() || 0;
+    
+                        if (user.isRiding) {
+                            passengerCount2 = Math.max(0, passengerCount2 - 1);
+                            userRef.update({ isRiding: false });
+                        } else {
+                            userRef.child('rideCount').transaction((rideCount) => {
+                                return (rideCount || 0) + 1;
+                            });  
+                            passengerCount2 += 1;                           
+                            userRef.update({ isRiding: true });
+                        }
+                   
+                        passengerCountRef.set(passengerCount2);
+                           
+                        io.emit('rfidTapped2', { passengerCount2: passengerCount2, isRiding: user.isRiding }); 
+                        res.json({ status: 'RFID success', passengerCount2: passengerCount2, isRiding: user.isRiding });
                     });
     
                     return true; 
@@ -225,20 +436,20 @@ app.get('/', (req, res) => {
     res.render('login');
 });
 
-app.get('/dashboard', ensureAuthenticated, async (req, res) => {
+app.get('/student', ensureAuthenticated, async (req, res) => {
     try{
         const studentid = req.session.user.id;
         const ref = db.ref("user/" + studentid);
 
         ref.once("value", (snapshot) => {
             const userData = snapshot.val();
-            const rideCount = userData.rideCount;
+            const isRiding = userData.isRiding;
 
             if(userData){
-                res.render('dashboard', { user: userData, rideCount: rideCount });
+                res.render('student', { user: userData, isRiding: isRiding });
             }
             else{
-                res.redirect('/')
+                res.redirect('/');
             }
         });
     }
@@ -247,6 +458,61 @@ app.get('/dashboard', ensureAuthenticated, async (req, res) => {
         res.status(500).send("Error fetching user data");
     }
 });
+
+app.get('/admin', ensureAuthAdmin, async (req, res) => {
+    try {
+        const adminid = req.session.admin.id;
+        const ref = db.ref("admin/" + adminid);
+
+        ref.once("value", (snapshot) => {
+            const userData = snapshot.val();
+            if (userData){
+                res.render('admin', { admin: userData});
+            }
+            else{
+                res.redirect('/');
+            }
+        });
+    }
+    catch {
+        console.error("Error fetching user data:", error);
+        res.status(500).send("Error fetching user data");
+    }
+});
+
+app.get('/login-data', async (req, res) => {
+    try {
+        const loginData = await fetchLoginDataFromDatabase();
+        res.json(loginData);
+    } catch (error) {
+        console.error("Error fetching login data:", error);
+        res.status(500).send("Error fetching login data");
+    }
+});
+
+app.get('/vehicle1-data', async (req, res) => {
+    try{
+        const vehicle1Data = await fetchVehicle1Data();
+        res.json({vehicle1Data});
+    } catch (error) {
+        console.error("Error fetching vehicle1 data", error);
+        res.status(500).send("Error fetching vehicle1 data");
+    }
+});
+
+app.get('/vehicle2-data', async (req, res) => {
+    try{
+        const vehicle2Data = await fetchVehicle2Data();
+        res.json({vehicle2Data});
+    } catch (error) {
+        console.error("Error fetching vehicle1 data", error);
+        res.status(500).send("Error fetching vehicle2 data");
+    }
+});
+
+app.get('/places', (req, res) => {
+    res.json(places);
+  });
 
 server.listen(PORT, () => {
     console.log('Server is running on' + PORT);
